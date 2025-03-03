@@ -1,16 +1,13 @@
-package ch.hftm.blogproject.boundary;
+package ch.hftm.boundary;
 
 import java.time.Duration;
-// import java.util.Optional;
 
 import org.jboss.resteasy.reactive.RestStreamElementType;
 
-// import ch.hftm.blog.control.BlogRepository;
-// import ch.hftm.blog.entity.Blog;
-// import io.smallrye.common.annotation.Blocking;
+import ch.hftm.repository.BlogRepository;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-// import jakarta.inject.Inject;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -18,8 +15,8 @@ import jakarta.ws.rs.core.MediaType;
 
 @Path("/reactive")
 public class ReactiveResource {
-    // @Inject
-    // BlogRepository blogRepository;
+    @Inject
+    BlogRepository blogRepository;
 
     // @GET
     // @Produces(MediaType.TEXT_PLAIN)
