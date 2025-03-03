@@ -21,6 +21,15 @@ public class MessagingTesting {
     }
 
     @Incoming("processed-a")
+    @Outgoing("processed-b")
+    public String replaceEvilWithLove(String payload) {
+        if ("BÖSE".equals(payload)) {
+            return "LOVE";
+        }
+        return payload;
+    }
+
+    @Incoming("processed-b")
     public void sink(String word) {
         System.out.println(">> " + word);
     }
