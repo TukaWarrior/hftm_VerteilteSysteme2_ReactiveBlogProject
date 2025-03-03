@@ -30,6 +30,14 @@ public class MessagingTesting {
     }
 
     @Incoming("processed-b")
+    @Outgoing("processed-c")
+    public Multi<String> filterShortStrings(Multi<String> payload) {
+        return payload.select().where(word -> word.length() >= 6);
+    }
+
+
+
+    @Incoming("processed-c")
     public void sink(String word) {
         System.out.println(">> " + word);
     }
