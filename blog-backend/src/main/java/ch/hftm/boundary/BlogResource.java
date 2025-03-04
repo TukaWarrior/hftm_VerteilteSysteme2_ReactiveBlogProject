@@ -2,11 +2,13 @@ package ch.hftm.boundary;
 
 import java.util.List;
 
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
+
 import ch.hftm.model.BlogDTO;
 import ch.hftm.repository.BlogRepository;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -26,11 +28,16 @@ public class BlogResource {
     @Inject
     BlogRepository blogRepository;
 
+    @Inject
+    @Channel("blogs-out") // Outgoing Kafka channel
+    Emitter<BlogDTO> blogEmitter;
+    
     @POST
     @WithTransaction
     public Uni<Response> createBlog(BlogDTO blogDTO) {
         return blogRepository.createBlog(blogDTO)
-                .onItem().transform(createdBlog -> Response.status(Response.Status.CREATED).entity(createdBlog).build());
+            .onItem().invoke(createdBlog -> blogEmitter.send(createdBlog))
+            .onItem().transform(createdBlog -> Response.status(Response.Status.CREATED).entity(createdBlog).build());
     }
 
     @GET

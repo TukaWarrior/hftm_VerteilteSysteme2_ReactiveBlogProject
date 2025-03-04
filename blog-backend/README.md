@@ -2,6 +2,10 @@
 
 http://localhost:8080/q/swagger-ui
 
+http://localhost:8080/q/dev-ui/io.quarkus.quarkus-kafka-client/topics
+
+http://localhost:8080/q/dev-ui/io.quarkus.quarkus-messaging/channels
+
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
