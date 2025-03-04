@@ -70,3 +70,17 @@ If you want to learn more about building native executables, please consult <htt
 Easily start your REST Web Services
 
 [Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+
+
+
+
+# Challenges I encountered
+Caused by: org.hibernate.PersistentObjectException: detached entity passed to persist: ch.hftm.model.Blog
+
+The error detached entity passed to persist occurs because the entity you are trying to persist (Blog) is in a detached state, meaning it is not managed by the Hibernate Reactive session. This is a common issue when working with Hibernate Reactive, as the entity must be in a managed state before being persisted.
+
+
+Multi does not support .stream
+Solution:
+.list() // Reactive method that returns Uni<List<Blog>>
+                .onItem().transformToMulti(blogs -> Multi.createFrom().iterable(blogs)); // Convert List<Blog> to Multi<Blog>

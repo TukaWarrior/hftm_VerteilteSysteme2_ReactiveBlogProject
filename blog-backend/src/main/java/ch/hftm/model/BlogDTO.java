@@ -1,18 +1,21 @@
 package ch.hftm.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+public class BlogDTO {
 
-@Entity
-public class Blog {
-
-    @Id
-    @GeneratedValue
     private Long id;
     private String title;
     private String content;
     private boolean validated;
+
+    // Constructors
+    public BlogDTO() {}
+
+    public BlogDTO(Long id, String title, String content, boolean validated) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.validated = validated;
+    }
 
     // Getters and Setters
     public Long getId() {

@@ -2,8 +2,10 @@ package ch.hftm.boundary;
 
 import java.util.List;
 
-import ch.hftm.model.Blog;
+import ch.hftm.model.BlogDTO;
 import ch.hftm.repository.BlogRepository;
+import io.quarkus.hibernate.reactive.panache.common.WithSession;
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
@@ -25,43 +27,49 @@ public class BlogResource {
     BlogRepository blogRepository;
 
     @POST
-    public Blog createBlog(Blog blog) {
-        blogRepository.persist(blog);
-        return blog;
+    @WithTransaction
+    public Uni<Response> createBlog(BlogDTO blogDTO) {
+        return blogRepository.createBlog(blogDTO)
+                .onItem().transform(createdBlog -> Response.status(Response.Status.CREATED).entity(createdBlog).build());
     }
 
     @GET
-    public List<Blog> getAllBlogs() {
-        return blogRepository.listAll();
-    }
-
-    @GET
-    @Path("/pipeline")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Uni<String> customPipeline() {
-        return Uni.createFrom().item("Start")
-                .onItem().transform(item -> item + " -> Step 1")
-                .onItem().transform(item -> item + " -> Step 2")
-                .onItem().transform(item -> item + " -> Done");
+    @WithSession
+    public Uni<List<BlogDTO>> getAllBlogs() {
+        return blogRepository.getAllBlogs();
     }
 
     @GET
     @Path("/{id}")
+    @WithSession
     public Uni<Response> getBlogById(@PathParam("id") Long id) {
-        return Uni.createFrom().item(() -> blogRepository.findById(id))
-                .onItem().ifNotNull().transform(blog -> Response.ok(blog).build())
+        return blogRepository.getBlogById(id)
+                .onItem().ifNotNull().transform(blogDTO -> Response.ok(blogDTO).build())
                 .onItem().ifNull().continueWith(Response.status(Response.Status.NOT_FOUND).build());
     }
 
     @GET
     @Path("/search/title/{title}")
-    public Multi<Blog> searchBlogsByTitle(@PathParam("title") String title) {
-        return Multi.createFrom().iterable(blogRepository.find("title like ?1", "%" + title + "%").list());
+    @WithSession
+    public Uni<List<BlogDTO>> searchBlogsByTitle(@PathParam("title") String title) {
+        return blogRepository.searchBlogByTitle(title);
     }
 
     @GET
     @Path("/search/content/{content}")
-    public Multi<Blog> searchBlogsByContent(@PathParam("content") String content) {
-        return Multi.createFrom().iterable(blogRepository.find("content like ?1", "%" + content + "%").list());
+    @WithSession
+    public Uni<List<BlogDTO>> searchBlogsByContent(@PathParam("content") String content) {
+        return blogRepository.searchBlogsByContent(content);
+    }
+
+    @GET
+    @Path("/pipeline")
+    @Produces(MediaType.TEXT_PLAIN)
+    @WithSession
+    public Uni<String> customPipeline() {
+        return Uni.createFrom().item("Start")
+            .onItem().transform(item -> item + " -> Step 1")
+            .onItem().transform(item -> item + " -> Step 2")
+            .onItem().transform(item -> item + " -> Done");
     }
 }
